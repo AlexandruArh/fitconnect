@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}FitConnect - Connect. Move. Thrive.{% endblock %}
+{% block content %}
+<!-- Hero -->
+<div class="py-5 text-center">
+  <h1 class="display-4 fw-bold"><i class="bi bi-lightning-charge-fill text-success"></i> FitConnect</h1>
+  <p class="lead text-muted">Discover fitness meetups, join running clubs, yoga sessions, group hikes and more.</p>
+  <a href="/accounts/register/" class="btn btn-success btn-lg me-2">Get Started</a>
+  <a href="/events/" class="btn btn-outline-success btn-lg">Browse Events</a>
+</div>
+<hr>
+<h3 class="mb-4">Upcoming Events</h3>
+{% if upcoming_events %}
+<div class="row g-4">
+  {% for event in upcoming_events %}
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <span class="badge bg-success mb-2">{{ event.get_category_display }}</span>
+        <h5 class="card-title">{{ event.title }}</h5>
+        <p class="card-text text-muted"><i class="bi bi-geo-alt"></i> {{ event.location }}</p>
+        <p class="card-text"><i class="bi bi-clock"></i> {{ event.date_time|date:"D, d M Y H:i" }}</p>
+      </div>
+      <div class="card-footer">
+        <a href="/events/{{ event.pk }}/" class="btn btn-sm btn-outline-success">View Details</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-muted text-center">No events yet. <a href="/accounts/register/">Sign up</a> to create the first one!</p>
+{% endif %}
+{% endblock %}

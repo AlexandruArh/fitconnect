@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - FitConnect{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Welcome back, {{ user.username }}!</h2>
+
+<!-- My Upcoming RSVPs -->
+<section class="mb-5">
+  <h4><i class="bi bi-check2-circle text-success"></i> My Upcoming Sessions</h4>
+  {% if my_rsvps %}
+  <div class="row g-3">
+    {% for rsvp in my_rsvps %}
+    <div class="col-md-4">
+      <div class="card border-success shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="card-title">{{ rsvp.event.title }}</h6>
+          <p class="card-text text-muted small"><i class="bi bi-calendar"></i> {{ rsvp.event.date_time|date:"D d M, H:i" }}</p>
+          <p class="card-text text-muted small"><i class="bi bi-geo-alt"></i> {{ rsvp.event.location }}</p>
+        </div>
+        <div class="card-footer">
+          <a href="/events/{{ rsvp.event.pk }}/" class="btn btn-sm btn-outline-success">View</a>
+          <form method="post" action="/events/{{ rsvp.event.pk }}/rsvp/" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-warning">Cancel RSVP</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">You haven't joined any upcoming events yet. <a href="/events/">Browse events</a></p>
+  {% endif %}
+</section>
+
+<!-- My Organised Events -->
+<section class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-clipboard-check text-primary"></i> Events I'm Organising</h4>
+    <a href="/events/create/" class="btn btn-sm btn-success"><i class="bi bi-plus"></i> New Event</a>
+  </div>
+  {% if my_events %}
+  <div class="row g-3">
+    {% for event in my_events %}
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="card-title">{{ event.title }}</h6>
+          <p class="card-text text-muted small"><i class="bi bi-calendar"></i> {{ event.date_time|date:"D d M, H:i" }}</p>
+          <p class="card-text text-muted small"><i class="bi bi-people"></i> {{ event.participant_count }}/{{ event.max_participants }}</p>
+        </div>
+        <div class="card-footer d-flex gap-1">
+          <a href="/events/{{ event.pk }}/" class="btn btn-sm btn-outline-primary">View</a>
+          <a href="/events/{{ event.pk }}/edit/" class="btn btn-sm btn-outline-secondary">Edit</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">You haven't created any events yet.</p>
+  {% endif %}
+</section>
+
+<!-- Discover Events -->
+<section>
+  <h4><i class="bi bi-compass text-warning"></i> Discover More Events</h4>
+  {% if discover %}
+  <div class="row g-3">
+    {% for event in discover %}
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <span class="badge bg-secondary mb-1">{{ event.get_category_display }}</span>
+          <h6 class="card-title">{{ event.title }}</h6>
+          <p class="card-text text-muted small"><i class="bi bi-calendar"></i> {{ event.date_time|date:"D d M, H:i" }}</p>
+        </div>
+        <div class="card-footer">
+          <a href="/events/{{ event.pk }}/" class="btn btn-sm btn-outline-success">View</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">No other upcoming events right now.</p>
+  {% endif %}
+</section>
+{% endblock %}
