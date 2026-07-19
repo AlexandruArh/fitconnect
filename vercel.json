@@ -2,7 +2,7 @@
   "version": 2,
   "framework": null,
   "installCommand": "uv pip install --system -r requirements.txt",
-  "buildCommand": "uv run python manage.py collectstatic --noinput",
+  "buildCommand": "/usr/bin/python3 manage.py collectstatic --noinput",
   "outputDirectory": "staticfiles",
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/index.py" }
