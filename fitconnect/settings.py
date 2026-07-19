@@ -16,6 +16,11 @@ DEBUG = env('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
+# Auto-allow all *.vercel.app subdomains in production
+if not DEBUG:
+    ALLOWED_HOSTS += ['.vercel.app']
+    CSRF_TRUSTED_ORIGINS += ['https://*.vercel.app']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
