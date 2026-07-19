@@ -8,13 +8,13 @@ import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Read .env file
 env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = env('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,7 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,9 +63,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fitconnect.wsgi.application'
 
-# Neon PostgreSQL via DATABASE_URL
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='sqlite:///db.sqlite3')
+    'default': env.db('DATABASE_URL', default=f'sqlite:///{BASE_DIR}/db.sqlite3')
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -80,7 +79,6 @@ TIME_ZONE = 'Europe/London'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (WhiteNoise serves these on Vercel)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -88,11 +86,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# django-crispy-forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-# Auth redirects
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'

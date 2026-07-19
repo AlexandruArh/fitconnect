@@ -1,18 +1,19 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Register - FitConnect{% endblock %}
+{% block title %}Register — FitConnect{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h2 class="card-title mb-4"><i class="bi bi-person-plus"></i> Create Account</h2>
-        <form method="post">
+    <div class="card">
+      <div class="card-header fw-semibold"><i class="bi bi-person-plus"></i> Create Account</div>
+      <div class="card-body">
+        <form method="post" novalidate>
           {% csrf_token %}
           {{ form|crispy }}
-          <button type="submit" class="btn btn-success w-100 mt-2">Register</button>
+          <button type="submit" class="btn btn-primary w-100 mt-2">Register</button>
         </form>
-        <p class="mt-3 text-center">Already have an account? <a href="/accounts/login/">Login</a></p>
+        <hr>
+        <p class="text-center mb-0 small">Already have an account? <a href="{% url 'accounts:login' %}">Login here</a></p>
       </div>
     </div>
   </div>

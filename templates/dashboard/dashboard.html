@@ -1,88 +1,73 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard - FitConnect{% endblock %}
+{% block title %}My Dashboard — FitConnect{% endblock %}
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Welcome back, {{ user.username }}!</h2>
+<h1 class="h4 fw-bold mb-4"><i class="bi bi-grid"></i> My Dashboard</h1>
 
-<!-- My Upcoming RSVPs -->
-<section class="mb-5">
-  <h4><i class="bi bi-check2-circle text-success"></i> My Upcoming Sessions</h4>
-  {% if my_rsvps %}
-  <div class="row g-3">
-    {% for rsvp in my_rsvps %}
-    <div class="col-md-4">
-      <div class="card border-success shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="card-title">{{ rsvp.event.title }}</h6>
-          <p class="card-text text-muted small"><i class="bi bi-calendar"></i> {{ rsvp.event.date_time|date:"D d M, H:i" }}</p>
-          <p class="card-text text-muted small"><i class="bi bi-geo-alt"></i> {{ rsvp.event.location }}</p>
-        </div>
-        <div class="card-footer">
-          <a href="/events/{{ rsvp.event.pk }}/" class="btn btn-sm btn-outline-success">View</a>
-          <form method="post" action="/events/{{ rsvp.event.pk }}/rsvp/" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-warning">Cancel RSVP</button>
-          </form>
-        </div>
+{% if reminders %}
+<div class="alert alert-warning d-flex align-items-start" role="alert">
+  <i class="bi bi-bell-fill me-2 mt-1"></i>
+  <div>
+    <strong>Reminder:</strong> You have events happening in the next 24 hours!
+    <ul class="mb-0 mt-1">
+      {% for event in reminders %}
+        <li><a href="{% url 'events:detail' event.pk %}">{{ event.title }}</a> &mdash; {{ event.date_time|date:"D d M H:i" }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold"><i class="bi bi-person-check"></i> Events I'm Organising</div>
+      <div class="card-body">
+        {% if my_events %}
+        <ul class="list-group list-group-flush">
+          {% for event in my_events %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <div>
+              <a href="{% url 'events:detail' event.pk %}" class="fw-semibold text-decoration-none">{{ event.title }}</a>
+              <div class="text-muted small"><i class="bi bi-calendar3"></i> {{ event.date_time|date:"D d M Y, H:i" }}</div>
+            </div>
+            <div>
+              <a href="{% url 'events:edit' event.pk %}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+              <a href="{% url 'events:delete' event.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">You haven't created any upcoming events. <a href="{% url 'events:create' %}">Create one!</a></p>
+        {% endif %}
       </div>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <p class="text-muted">You haven't joined any upcoming events yet. <a href="/events/">Browse events</a></p>
-  {% endif %}
-</section>
 
-<!-- My Organised Events -->
-<section class="mb-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4><i class="bi bi-clipboard-check text-primary"></i> Events I'm Organising</h4>
-    <a href="/events/create/" class="btn btn-sm btn-success"><i class="bi bi-plus"></i> New Event</a>
-  </div>
-  {% if my_events %}
-  <div class="row g-3">
-    {% for event in my_events %}
-    <div class="col-md-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="card-title">{{ event.title }}</h6>
-          <p class="card-text text-muted small"><i class="bi bi-calendar"></i> {{ event.date_time|date:"D d M, H:i" }}</p>
-          <p class="card-text text-muted small"><i class="bi bi-people"></i> {{ event.participant_count }}/{{ event.max_participants }}</p>
-        </div>
-        <div class="card-footer d-flex gap-1">
-          <a href="/events/{{ event.pk }}/" class="btn btn-sm btn-outline-primary">View</a>
-          <a href="/events/{{ event.pk }}/edit/" class="btn btn-sm btn-outline-secondary">Edit</a>
-        </div>
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold"><i class="bi bi-calendar-check"></i> Events I've Joined</div>
+      <div class="card-body">
+        {% if joined_events %}
+        <ul class="list-group list-group-flush">
+          {% for event in joined_events %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <div>
+              <a href="{% url 'events:detail' event.pk %}" class="fw-semibold text-decoration-none">{{ event.title }}</a>
+              <div class="text-muted small"><i class="bi bi-calendar3"></i> {{ event.date_time|date:"D d M Y, H:i" }}</div>
+            </div>
+            <form method="post" action="{% url 'events:rsvp' event.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">Cancel RSVP</button>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">You haven't joined any events yet. <a href="{% url 'events:list' %}">Browse events!</a></p>
+        {% endif %}
       </div>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <p class="text-muted">You haven't created any events yet.</p>
-  {% endif %}
-</section>
-
-<!-- Discover Events -->
-<section>
-  <h4><i class="bi bi-compass text-warning"></i> Discover More Events</h4>
-  {% if discover %}
-  <div class="row g-3">
-    {% for event in discover %}
-    <div class="col-md-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <span class="badge bg-secondary mb-1">{{ event.get_category_display }}</span>
-          <h6 class="card-title">{{ event.title }}</h6>
-          <p class="card-text text-muted small"><i class="bi bi-calendar"></i> {{ event.date_time|date:"D d M, H:i" }}</p>
-        </div>
-        <div class="card-footer">
-          <a href="/events/{{ event.pk }}/" class="btn btn-sm btn-outline-success">View</a>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <p class="text-muted">No other upcoming events right now.</p>
-  {% endif %}
-</section>
+</div>
 {% endblock %}

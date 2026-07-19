@@ -1,12 +1,9 @@
-"""FitConnect URL Configuration"""
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    path('events/', include('events.urls')),
-    path('dashboard/', include('dashboard.urls')),
-    path('', RedirectView.as_view(url='/dashboard/'), name='home'),
+    path('', include('dashboard.urls', namespace='dashboard')),
+    path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('events/', include('events.urls', namespace='events')),
 ]

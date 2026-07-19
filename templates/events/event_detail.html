@@ -1,50 +1,66 @@
 {% extends 'base.html' %}
-{% block title %}{{ event.title }} - FitConnect{% endblock %}
+{% block title %}{{ event.title }} — FitConnect{% endblock %}
 {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/events/">Events</a></li>
-        <li class="breadcrumb-item active">{{ event.title }}</li>
-      </ol>
-    </nav>
-    <h2>{{ event.title }}</h2>
-    <span class="badge bg-success mb-3">{{ event.get_category_display }}</span>
-    <p class="text-muted"><i class="bi bi-geo-alt"></i> {{ event.location }}</p>
-    <p><i class="bi bi-clock"></i> {{ event.date_time|date:"l, d F Y \a\t H:i" }}</p>
-    <p><i class="bi bi-person-circle"></i> Organised by <strong>{{ event.organiser.username }}</strong></p>
-    <p><i class="bi bi-people"></i> {{ event.participant_count }} / {{ event.max_participants }} participants</p>
-    <hr>
-    <p>{{ event.description }}</p>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        {% if user.is_authenticated %}
-          {% if event.organiser == user %}
-            <p class="text-muted">You are the organiser of this event.</p>
-            <a href="/events/{{ event.pk }}/edit/" class="btn btn-outline-primary w-100 mb-2"><i class="bi bi-pencil"></i> Edit Event</a>
-            <a href="/events/{{ event.pk }}/delete/" class="btn btn-outline-danger w-100"><i class="bi bi-trash"></i> Delete Event</a>
-          {% elif event.is_upcoming %}
-            <form method="post" action="/events/{{ event.pk }}/rsvp/">
-              {% csrf_token %}
-              {% if user_rsvp and user_rsvp.status == 'confirmed' %}
-                <button type="submit" class="btn btn-warning w-100"><i class="bi bi-x-circle"></i> Cancel RSVP</button>
-              {% elif event.is_full %}
-                <button class="btn btn-secondary w-100" disabled>Event Full</button>
-              {% else %}
-                <button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle"></i> Join Event</button>
-              {% endif %}
-            </form>
-          {% else %}
-            <p class="text-muted">This event has already taken place.</p>
-          {% endif %}
-        {% else %}
-          <p>Please <a href="/accounts/login/">login</a> to RSVP.</p>
-        {% endif %}
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <span class="badge bg-primary mb-2">{{ event.get_category_display }}</span>
+        {% if event.is_full %}<span class="badge bg-danger mb-2">Full</span>{% endif %}
+        {% if not event.is_upcoming %}<span class="badge bg-secondary mb-2">Past</span>{% endif %}
+        <h1 class="h3 fw-bold">{{ event.title }}</h1>
+      </div>
+      {% if user == event.organiser %}
+      <div>
+        <a href="{% url 'events:edit' event.pk %}" class="btn btn-outline-secondary btn-sm me-1"><i class="bi bi-pencil"></i> Edit</a>
+        <a href="{% url 'events:delete' event.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="row g-3 my-2">
+      <div class="col-sm-6">
+        <p class="mb-1"><i class="bi bi-calendar-event text-primary"></i> <strong>Date & Time</strong></p>
+        <p class="text-muted">{{ event.date_time|date:"l, d F Y \a\t H:i" }}</p>
+      </div>
+      <div class="col-sm-6">
+        <p class="mb-1"><i class="bi bi-geo-alt text-primary"></i> <strong>Location</strong></p>
+        <p class="text-muted">{{ event.location }}</p>
+      </div>
+      <div class="col-sm-6">
+        <p class="mb-1"><i class="bi bi-people text-primary"></i> <strong>Capacity</strong></p>
+        <p class="text-muted">{{ event.participant_count }} / {{ event.max_participants }} joined</p>
+      </div>
+      <div class="col-sm-6">
+        <p class="mb-1"><i class="bi bi-person text-primary"></i> <strong>Organiser</strong></p>
+        <p class="text-muted">{{ event.organiser.username }}</p>
       </div>
     </div>
+
+    <hr>
+    <h5 class="fw-semibold">About this event</h5>
+    <p>{{ event.description }}</p>
+
+    {% if user.is_authenticated and user != event.organiser %}
+      {% if event.is_upcoming %}
+      <form method="post" action="{% url 'events:rsvp' event.pk %}" class="mt-3">
+        {% csrf_token %}
+        {% if user_rsvp and user_rsvp.status == 'confirmed' %}
+          <button type="submit" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Cancel RSVP</button>
+        {% elif event.is_full %}
+          <button type="button" class="btn btn-secondary" disabled>Event Full</button>
+        {% else %}
+          <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Join Event</button>
+        {% endif %}
+      </form>
+      {% endif %}
+    {% elif not user.is_authenticated %}
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary mt-3">Login to RSVP</a>
+    {% endif %}
   </div>
+</div>
+
+<div class="mt-3">
+  <a href="{% url 'events:list' %}" class="btn btn-link ps-0"><i class="bi bi-arrow-left"></i> Back to Events</a>
 </div>
 {% endblock %}

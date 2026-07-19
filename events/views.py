@@ -1,21 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from .models import Event, RSVP
 from .forms import EventForm
 
 
 def event_list(request):
     """Public list of all upcoming events."""
-    events = Event.objects.filter(
-        date_time__gt=__import__('django.utils.timezone', fromlist=['timezone']).timezone.now()
-    ).order_by('date_time')
+    events = Event.objects.filter(date_time__gt=timezone.now()).order_by('date_time')
     return render(request, 'events/event_list.html', {'events': events})
 
 
 def event_detail(request, pk):
     """Detail view for a single event."""
-    from django.utils import timezone
     event = get_object_or_404(Event, pk=pk)
     user_rsvp = None
     if request.user.is_authenticated:
@@ -44,7 +42,7 @@ def event_create(request):
 
 @login_required
 def event_edit(request, pk):
-    """Edit an existing event (organiser only)."""
+    """Edit an existing event — organiser only."""
     event = get_object_or_404(Event, pk=pk, organiser=request.user)
     if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
@@ -59,7 +57,7 @@ def event_edit(request, pk):
 
 @login_required
 def event_delete(request, pk):
-    """Delete an event (organiser only)."""
+    """Delete an event — organiser only."""
     event = get_object_or_404(Event, pk=pk, organiser=request.user)
     if request.method == 'POST':
         title = event.title
@@ -71,8 +69,7 @@ def event_delete(request, pk):
 
 @login_required
 def rsvp_toggle(request, pk):
-    """Toggle RSVP status for an event (join or cancel)."""
-    from django.utils import timezone
+    """Toggle RSVP — join or cancel."""
     event = get_object_or_404(Event, pk=pk)
 
     if not event.is_upcoming:
@@ -84,13 +81,15 @@ def rsvp_toggle(request, pk):
     if created or rsvp.status == 'cancelled':
         if event.is_full:
             messages.warning(request, 'Sorry, this event is full!')
+            if created:
+                rsvp.delete()
         else:
             rsvp.status = 'confirmed'
             rsvp.save()
-            messages.success(request, f'You have joined "{event.title}"!')
+            messages.success(request, f'You joined "{event.title}"!')
     else:
         rsvp.status = 'cancelled'
         rsvp.save()
-        messages.info(request, f'You have cancelled your RSVP for "{event.title}".')
+        messages.info(request, f'RSVP cancelled for "{event.title}".')
 
     return redirect('events:detail', pk=pk)

@@ -3,3 +3,6 @@ psycopg[binary]>=3.2
 dj-database-url>=2.3
 python-dotenv>=1.0
 whitenoise>=6.8
+django-environ>=0.11
+django-crispy-forms>=2.3
+crispy-bootstrap5>=2024.2
