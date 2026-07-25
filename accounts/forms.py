@@ -24,6 +24,9 @@ class RegisterForm(UserCreationForm):
             raise forms.ValidationError(
                 "An account with this username already exists."
             )
+  
+
+
 class PersonalDetailsForm(forms.ModelForm):
     class Meta:
         model = User
@@ -34,10 +37,13 @@ class PersonalDetailsForm(forms.ModelForm):
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
         }
-
+      def clean_username(self):
+    username = self.cleaned_data["username"].strip()
+    if User.objects.filter(username__iexact=username).exists():
+        raise forms.ValidationError("This username is already taken.")
+    return username
     def clean_email(self):
-        email = self.cleaned_data["email"].strip().lower()
-        qs = User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise forms.ValidationError("An account with this email already exists.")
-        return email
+    email = self.cleaned_data["email"].strip().lower()
+    if User.objects.filter(email__iexact=email).exists():
+        raise forms.ValidationError("An account with this email already exists.")
+    return email
