@@ -3,7 +3,10 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import RegisterForm
-
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.decorators import login_required
+from .forms import RegisterForm, PersonalDetailsForm
 
 def register_view(request):
     """User registration."""
@@ -44,3 +47,38 @@ def logout_view(request):
         logout(request)
         messages.info(request, 'You have been logged out.')
     return redirect('dashboard:home')
+@login_required
+def personal_details_view(request):
+    if request.method == "POST":
+        form = PersonalDetailsForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your personal details were updated.")
+            return redirect("accounts:personal_details")
+    else:
+        form = PersonalDetailsForm(instance=request.user)
+    return render(request, "accounts/personal_details.html", {"form": form})
+
+
+@login_required
+def change_password_view(request):
+    if request.method == "POST":
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Password changed successfully.")
+            return redirect("accounts:personal_details")
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, "accounts/change_password.html", {"form": form})
+
+
+@login_required
+def delete_account_view(request):
+    if request.method == "POST":
+        username = request.user.username
+        request.user.delete()
+        messages.info(request, f"Account '{username}' has been deleted.")
+        return redirect("dashboard:home")
+    return render(request, "accounts/delete_account.html")
