@@ -11,7 +11,7 @@ urlpatterns = [
     path("personal-details/", views.personal_details_view, name="personal_details"),
     path("change-password/", views.change_password_view, name="change_password"),
     path("delete-account/", views.delete_account_view, name="delete_account"),
-
+    path('accounts/', include('accounts.urls', namespace='accounts'))
     # Password reset flow
     path(
         "password-reset/",
