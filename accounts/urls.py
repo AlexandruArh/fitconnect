@@ -1,4 +1,8 @@
+from django.urls import path
 from django.contrib.auth import views as auth_views
+from . import views
+
+app_name = "accounts"
 
 urlpatterns = [
     path("register/", views.register_view, name="register"),
@@ -8,7 +12,7 @@ urlpatterns = [
     path("change-password/", views.change_password_view, name="change_password"),
     path("delete-account/", views.delete_account_view, name="delete_account"),
 
-    # Password reset flow (all built-in Django views)
+    # Password reset flow
     path(
         "password-reset/",
         auth_views.PasswordResetView.as_view(
