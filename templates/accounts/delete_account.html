@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Account — FitConnect{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">
+        <i class="bi bi-exclamation-triangle"></i> Delete Account
+      </div>
+
+      <div class="card-body">
+        <h1 class="h5">Are you sure, {{ user.username }}?</h1>
+
+        <p>
+          Deleting your account permanently removes your profile, events you
+          created, and RSVPs you made. This action cannot be undone.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="d-flex gap-2 mt-3">
+            <a href="{% url 'accounts:personal_details' %}" class="btn btn-outline-secondary">
+              Keep my account
+            </a>
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash"></i> Permanently delete account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
