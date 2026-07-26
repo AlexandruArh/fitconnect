@@ -16,7 +16,7 @@ if os.path.exists(env_file):
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = env('DEBUG', default=False)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.vercel.app'])
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
 # Auto-allow all *.vercel.app subdomains in production
@@ -109,3 +109,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = f"FitConnect <{EMAIL_HOST_USER}>"
+CSRF_TRUSTED_ORIGINS = [
+    'https://fitconnect-dtngpjjzb-alexandru-arh-dev.vercel.app',
+    'https://*.vercel.app',
+]
